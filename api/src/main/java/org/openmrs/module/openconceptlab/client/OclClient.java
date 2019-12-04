@@ -64,7 +64,7 @@ public class OclClient {
 	public OclClient(String dataDirectory) {
 		this.dataDirectory = dataDirectory;
 	}
-	
+
 	public OclResponse fetchSnapshotUpdates(String url, String token, Date updatedSince) throws IOException {
 		totalBytesToDownload = -1; //unknown yet
 		bytesDownloaded = 0;
@@ -103,16 +103,20 @@ public class OclClient {
 		totalBytesToDownload = -1; //unknown yet
 		bytesDownloaded = 0;
 
-		String latestVersion = fetchLatestOclReleaseVersion(url, token);
+		String exportVersion = getUrlVersion(url, token);
 
-		GetMethod exportUrlGet = executeExportRequest(url, latestVersion);
-		
+		GetMethod exportUrlGet = executeExportRequest(url, exportVersion);
+
 		return extractResponse(exportUrlGet);
     }
 
     public GetMethod executeExportRequest(String url, String latestVersion) throws IOException{
-
-		GetMethod exportUrlGet = new GetMethod(url + "/" + latestVersion + "/export");
+		GetMethod exportUrlGet;
+		if(url.contains(latestVersion)){
+			exportUrlGet = new GetMethod(url + "/export");
+		}else {
+			exportUrlGet = new GetMethod(url + "/" + latestVersion + "/export");
+		}
 
 		HttpClient client = new HttpClient();
 		client.getHttpConnectionManager().getParams().setSoTimeout(TIMEOUT_IN_MS);
@@ -125,8 +129,27 @@ public class OclClient {
 		return exportUrlGet;
 	}
 
+
+	public String  getUrlVersion(String url, String token) throws IOException {
+		String exportVersion;
+
+		if (url.endsWith("/")) {
+			url = url.substring(0, url.lastIndexOf('/'));
+		}
+		String[] words = url.split("api.openconceptlab.org");
+
+		int count = words[1].length() - words[1].replaceAll("/","").length();
+
+		if (count == 5){
+			exportVersion =  url.substring(url.lastIndexOf("/") + 1); //return url version
+		}else {
+			exportVersion = fetchLatestOclReleaseVersion(url, token);
+		}
+		return exportVersion;
+	}
+
 	public OclResponse fetchLastReleaseVersion(String url, String token, String lastReleaseVersion) throws IOException {
-		String latestOclReleaseVersion = fetchLatestOclReleaseVersion(url, token);
+		String latestOclReleaseVersion = getUrlVersion(url, token);
 		if (lastReleaseVersion == null || !lastReleaseVersion.equals(latestOclReleaseVersion)) {
 			//If there is no lastReleaseVersion then the subscription has been changed from snapshot to releases
 			//and we need to fetch the latest OCL release version.

@@ -154,7 +154,7 @@ public class Importer implements Runnable {
                 if (updatedSince == null) {
                     oclResponse = oclClient.fetchLastReleaseVersion(subscription.getUrl(), subscription.getToken());
 					importService.updateReleaseVersion(anImport,
-                            oclClient.fetchLatestOclReleaseVersion(subscription.getUrl(), subscription.getToken()));
+                            oclClient.getUrlVersion(subscription.getUrl(), subscription.getToken()));
                 } else {
                     if (subscription.isSubscribedToSnapshot()) {
                         oclResponse = oclClient.fetchSnapshotUpdates(subscription.getUrl(), subscription.getToken(),
@@ -163,7 +163,7 @@ public class Importer implements Runnable {
                     else {
                         oclResponse = oclClient.fetchLastReleaseVersion(subscription.getUrl(), subscription.getToken(), lastImport.getReleaseVersion());
 						importService.updateReleaseVersion(anImport,
-                                oclClient.fetchLatestOclReleaseVersion(subscription.getUrl(), subscription.getToken()));
+                                oclClient.getUrlVersion(subscription.getUrl(), subscription.getToken()));
                     }
                 }
 
