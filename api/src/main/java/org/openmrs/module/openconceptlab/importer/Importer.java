@@ -22,6 +22,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.Daemon;
+import org.openmrs.module.dataexchange.DataExporter;
 import org.openmrs.module.openconceptlab.CacheService;
 import org.openmrs.module.openconceptlab.Import;
 import org.openmrs.module.openconceptlab.ImportProgress;
@@ -39,6 +40,7 @@ import org.openmrs.module.openconceptlab.scheduler.UpdateScheduler;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -82,6 +84,12 @@ public class Importer implements Runnable {
 	private ZipFile zipFile;
 
 	private MultipartFile multipartFile;
+
+	private  DataExporter dataExporter;
+
+	public void setDataExporter(DataExporter dataExporter) {
+		this.dataExporter = dataExporter;
+	}
 
 	private interface Task {
 		void run() throws Exception;
@@ -152,10 +160,12 @@ public class Importer implements Runnable {
                 OclResponse oclResponse;
 
                 if (updatedSince == null) {
+					backupConcepts();
                     oclResponse = oclClient.fetchLastReleaseVersion(subscription.getUrl(), subscription.getToken());
 					importService.updateReleaseVersion(anImport,
                             oclClient.fetchLatestOclReleaseVersion(subscription.getUrl(), subscription.getToken()));
                 } else {
+					backupConcepts();
                     if (subscription.isSubscribedToSnapshot()) {
                         oclResponse = oclClient.fetchSnapshotUpdates(subscription.getUrl(), subscription.getToken(),
                                 updatedSince);
@@ -180,6 +190,20 @@ public class Importer implements Runnable {
             }
         });
     }
+
+    public void backupConcepts(){
+		log.error("backupConcepts was CALLED");
+		File conceptsFile;
+		FileInputStream inputStream;
+		try {
+			conceptsFile = new File("/Users/jecihjoy/Desktop/concepts.xml");
+			dataExporter.exportAllConcepts(conceptsFile.getPath());
+			inputStream = new FileInputStream(conceptsFile);
+			inputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * This run is used to update sources from zipfile

@@ -17,6 +17,9 @@
 	<require_modules>
 		<require_module version="${webservices.restVersion}">org.openmrs.module.webservices.rest</require_module>
 	</require_modules>
+	<require_modules>
+		<require_module version="1.3.3">org.openmrs.module.dataexchange</require_module>
+	</require_modules>
 
 	<aware_of_modules>
 		<aware_of_module>org.openmrs.module.owa</aware_of_module>

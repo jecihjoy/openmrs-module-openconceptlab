@@ -59,6 +59,7 @@
 		<!-- Module dependencies -->
 		<webservices.restVersion>2.17</webservices.restVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<dataexchange.restVersion>1.3.3</dataexchange.restVersion>
 	</properties>
 
 	<dependencyManagement>
@@ -129,6 +130,12 @@
 				<artifactId>webservices.rest-omod-common</artifactId>
 				<version>${webservices.restVersion}</version>
 				<classifier>tests</classifier>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.openmrs.module</groupId>
+				<artifactId>dataexchange</artifactId>
+				<version>1.3.3</version>
 				<scope>provided</scope>
 			</dependency>
 
